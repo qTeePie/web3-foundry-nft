@@ -29,8 +29,8 @@ jobs:
         with:
           version: nightly
 
-    - name: Generate Remappings
-      run: echo "Skipping remappings generation since it's committed."
+      - name: Generate Remappings
+        run: echo "Skipping remappings generation since it's committed."
 
       - name: Show Forge version
         run: |
