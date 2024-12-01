@@ -18,12 +18,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: recursive  # Ensures submodules are fetched
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
+
+      - name: Generate Remappings
+        run: |
+          forge remappings > remappings.txt  # Generates remappings for submodule dependencies
 
       - name: Show Forge version
         run: |
