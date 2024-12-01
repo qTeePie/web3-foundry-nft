@@ -29,6 +29,11 @@ jobs:
         run: |
           forge --version
 
+      # Install dependencies in the lib folder (e.g., OpenZeppelin)
+      - name: Install Dependencies
+        run: |
+          forge install
+
       - name: Run Forge fmt
         run: |
           forge fmt --check
