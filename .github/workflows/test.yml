@@ -1,20 +1,48 @@
-on: [push]
+name: CI
 
-name: test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  FOUNDRY_PROFILE: ci
 
 jobs:
   check:
+    strategy:
+      fail-fast: true
+
     name: Foundry project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+      - uses: actions/checkout@v4
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
 
-      - name: Run tests
-        run: forge test -vvv
+      - name: Install Dependencies
+        run: |
+          make install
+
+      - name: Generate Remappings
+        run: |
+          forge remappings > remappings.txt
+
+      - name: Show Forge version
+        run: |
+          forge --version
+
+      - name: Build Project
+        run: |
+          make build
+
+      - name: Run Tests
+        run: |
+          if grep -q "function test" $(find src/ -name "*.sol"); then
+            make test;
+          else
+            echo "No tests found! Skipping.";
+          fi
