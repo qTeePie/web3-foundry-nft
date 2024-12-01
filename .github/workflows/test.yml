@@ -29,9 +29,8 @@ jobs:
         with:
           version: nightly
 
-      - name: Generate Remappings
-        run: |
-          forge remappings > remappings.txt  # Generates remappings for submodule dependencies
+    - name: Generate Remappings
+      run: echo "Skipping remappings generation since it's committed."
 
       - name: Show Forge version
         run: |
