@@ -20,6 +20,10 @@ jobs:
         with:
           submodules: recursive  # Ensures submodules are fetched
 
+      - name: Update Submodules
+        run: |
+          git submodule update --init --recursive  # Explicitly updates submodules
+
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
