@@ -17,6 +17,7 @@ contract MoodNft is ERC721 {
 
     mapping(uint256 => Mood) private s_tokenIdToMood;
 
+    // Constructor takes to parameyters, the sad and happy SVG image URIs (base64 encoded)
     constructor(string memory sadSvgImageUri, string memory happySvgImageUri) ERC721("Mood NFT", "MN") {
         s_sadSvgImageUri = sadSvgImageUri;
         s_happySvgImageUri = happySvgImageUri;
@@ -24,19 +25,36 @@ contract MoodNft is ERC721 {
 
     function mintNft() public {
         _safeMint(msg.sender, s_tokenCounter);
+        s_tokenIdToMood[s_tokenCounter] = Mood.HAPPY;
         s_tokenCounter++;
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        string memory tokenMetadata = string(
+        string memory imageURI = s_tokenIdToMood[tokenId] == Mood.HAPPY ? s_happySvgImageUri : s_sadSvgImageUri;
+
+        return string(
             abi.encodePacked(
-                '{"name": "',
-                name(),
-                '", "description": "An NFT that represents your vibez", "attributes": [{"trait_type": "Mood", "value": 100}],"image":',
-                '"data:image/svg+xml;base64,',
-                Base64.encode(bytes(tokenId % 2 == 0 ? s_happySvgImageUri : s_sadSvgImageUri)),
-                '"}'
+                _baseURI(),
+                Base64.encode(
+                    bytes(
+                        abi.encodePacked(
+                            '{"name": "',
+                            name(),
+                            '", "description": "An NFT that represents your vibez", "attributes": [{"trait_type": "Mood", "value": 100}],"image":',
+                            '"data:image/svg+xml;base64,',
+                            imageURI,
+                            '"}'
+                        )
+                    )
+                )
             )
         );
+    }
+
+    /**
+     * Since we're orking with base64, we prefix our tokenURI
+     */
+    function _baseURI() internal pure override returns (string memory) {
+        return "data:application/json;base64,"; // This is the base URI
     }
 }
