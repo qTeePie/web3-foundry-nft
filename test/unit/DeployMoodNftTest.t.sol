@@ -3,8 +3,7 @@
 pragma solidity ^0.8.18;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {DeployMoodNft} from "../script/DeployMoodNft.s.sol";
-import {Test} from "forge-std/Test.sol";
+import {DeployMoodNft} from "script/DeployMoodNft.s.sol";
 
 contract DeployMoodNftTest is Test {
     DeployMoodNft public deployer;
@@ -21,5 +20,16 @@ contract DeployMoodNftTest is Test {
         string memory actualUri = deployer.svgToImageURI(svg);
 
         assert(keccak256(abi.encodePacked(expectedUri)) == keccak256(abi.encodePacked(actualUri)));
+    }
+
+    function testFlipMoodIntegration() public {
+        // Arrange
+        vm.prank(USER);
+        moodNFT.mintNft();
+        vm.prank(USER);
+        // Act
+        moodNFT.flipMood(0);
+        // Assert
+        assert(keccak256(abi.encodePacked(moodNft.tokenURI(0))) == keccak256(abi.encodePacked(SAD_SVG_URI)));
     }
 }

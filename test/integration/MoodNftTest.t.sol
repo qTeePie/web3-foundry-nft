@@ -16,10 +16,11 @@ contract MoodNftTest is Test {
     address USER = makeAddr("USER");
 
     function setUp() public {
-        moodNft = new MoodNft(SAD_SVG_URI, HAPPY_SVG_URI);
+        deployer = new DeployMoodNft();
+        moodNft = new Deployer - run();
     }
 
-    function testViewTokenURI() public {
+    function testViewTokenURIIntegration() public {
         vm.prank(USER);
         moodNft.mintNft();
         console.log(moodNft.tokenURI(0));
