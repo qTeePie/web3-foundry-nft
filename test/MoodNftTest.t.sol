@@ -26,6 +26,7 @@ contract MoodNftTest is Test {
     function testViewTokenURIIntegration() public {
         vm.prank(USER);
         moodNft.mintNft();
+        console.log(moodNft.tokenURI(0));
     }
 
     function testFlipMoodToSadIntegration() public {

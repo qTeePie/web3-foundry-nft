@@ -4,13 +4,14 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {console} from "forge-std/Test.sol";
 
 contract MoodNft is ERC721 {
     error NFTStateNft__CantFlipNFTStateIfNotOwner();
 
     uint256 private s_tokenCounter;
-    string private s_sadSvgImageUri;
-    string private s_happySvgImageUri;
+    string private s_sadSvgUri;
+    string private s_happySvgUri;
 
     enum NFTState {
         SAD,
@@ -20,9 +21,10 @@ contract MoodNft is ERC721 {
     mapping(uint256 => NFTState) private s_tokenIdToState;
 
     // Constructor takes to parameyters, the sad and happy SVG image URIs (base64 encoded)
-    constructor(string memory sadSvgImageUri, string memory happySvgImageUri) ERC721("Mood NFT", "MN") {
-        s_sadSvgImageUri = sadSvgImageUri;
-        s_happySvgImageUri = happySvgImageUri;
+    constructor(string memory sadSvgUri, string memory happySvgUri) ERC721("Mood NFT", "MN") {
+        s_tokenCounter = 0;
+        s_sadSvgUri = sadSvgUri;
+        s_happySvgUri = happySvgUri;
     }
 
     function mintNft() public {
@@ -32,7 +34,8 @@ contract MoodNft is ERC721 {
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        string memory imageURI = s_tokenIdToState[tokenId] == NFTState.HAPPY ? s_happySvgImageUri : s_sadSvgImageUri;
+        string memory imageURI = s_tokenIdToState[tokenId] == NFTState.HAPPY ? s_happySvgUri : s_sadSvgUri;
+        console.log("imageURI: %s", imageURI);
 
         return string(
             abi.encodePacked(
@@ -43,7 +46,6 @@ contract MoodNft is ERC721 {
                             '{"name": "',
                             name(),
                             '", "description": "An NFT that represents your vibez", "attributes": [{"trait_type": "moodiness", "value": 100}],"image":',
-                            '"data:image/svg+xml;base64,',
                             imageURI,
                             '"}'
                         )
@@ -59,15 +61,23 @@ contract MoodNft is ERC721 {
             revert NFTStateNft__CantFlipNFTStateIfNotOwner();
         }
         // Bitwise XOR to flip the NFTState
-        if (s_tokenIdToState[tokenId] == NFTState.HAPPY) {
-            s_tokenIdToState[tokenId] = NFTState.SAD;
-        } else {
-            s_tokenIdToState[tokenId] = NFTState.HAPPY;
-        }
+        s_tokenIdToState[tokenId] = NFTState(uint256(s_tokenIdToState[tokenId]) ^ 1);
     }
 
     // Since we're orking with base64, we add prefix our tokenURI
     function _baseURI() internal pure override returns (string memory) {
         return "data:application/json;base64,"; // This is the base URI
+    }
+
+    function getHappySVG() public view returns (string memory) {
+        return s_happySvgUri;
+    }
+
+    function getSadSVG() public view returns (string memory) {
+        return s_sadSvgUri;
+    }
+
+    function getTokenCounter() public view returns (uint256) {
+        return s_tokenCounter;
     }
 }
