@@ -17,22 +17,22 @@ contract MoodNft is ERC721 {
         HAPPY
     }
 
-    mapping(uint256 => NFTState) private s_tokenIdToNFTState;
+    mapping(uint256 => NFTState) private s_tokenIdToState;
 
     // Constructor takes to parameyters, the sad and happy SVG image URIs (base64 encoded)
-    constructor(string memory sadSvgImageUri, string memory happySvgImageUri) ERC721("NFTState NFT", "MN") {
+    constructor(string memory sadSvgImageUri, string memory happySvgImageUri) ERC721("Mood NFT", "MN") {
         s_sadSvgImageUri = sadSvgImageUri;
         s_happySvgImageUri = happySvgImageUri;
     }
 
     function mintNft() public {
         _safeMint(msg.sender, s_tokenCounter);
-        s_tokenIdToNFTState[s_tokenCounter] = NFTState.HAPPY;
+        s_tokenIdToState[s_tokenCounter] = NFTState.HAPPY;
         s_tokenCounter++;
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        string memory imageURI = s_tokenIdToNFTState[tokenId] == NFTState.HAPPY ? s_happySvgImageUri : s_sadSvgImageUri;
+        string memory imageURI = s_tokenIdToState[tokenId] == NFTState.HAPPY ? s_happySvgImageUri : s_sadSvgImageUri;
 
         return string(
             abi.encodePacked(
@@ -42,7 +42,7 @@ contract MoodNft is ERC721 {
                         abi.encodePacked(
                             '{"name": "',
                             name(),
-                            '", "description": "An NFT that represents your vibez", "attributes": [{"trait_type": "NFTState", "value": 100}],"image":',
+                            '", "description": "An NFT that represents your vibez", "attributes": [{"trait_type": "moodiness", "value": 100}],"image":',
                             '"data:image/svg+xml;base64,',
                             imageURI,
                             '"}'
@@ -54,12 +54,16 @@ contract MoodNft is ERC721 {
     }
 
     // This function will flip the NFTState of the NFT, only approved owners can do this
-    function flipNFTState(uint256 tokenId) public {
+    function flipMood(uint256 tokenId) public {
         if (getApproved(tokenId) != msg.sender && ownerOf(tokenId) != msg.sender) {
             revert NFTStateNft__CantFlipNFTStateIfNotOwner();
         }
         // Bitwise XOR to flip the NFTState
-        s_tokenIdToNFTState[tokenId] = NFTState(uint256(s_tokenIdToNFTState[tokenId]) ^ 1);
+        if (s_tokenIdToState[tokenId] == NFTState.HAPPY) {
+            s_tokenIdToState[tokenId] = NFTState.SAD;
+        } else {
+            s_tokenIdToState[tokenId] = NFTState.HAPPY;
+        }
     }
 
     // Since we're orking with base64, we add prefix our tokenURI
