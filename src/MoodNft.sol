@@ -35,7 +35,6 @@ contract MoodNft is ERC721 {
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         string memory imageURI = s_tokenIdToState[tokenId] == NFTState.HAPPY ? s_happySvgUri : s_sadSvgUri;
-        console.log("imageURI: %s", imageURI);
 
         return string(
             abi.encodePacked(
@@ -46,6 +45,7 @@ contract MoodNft is ERC721 {
                             '{"name": "',
                             name(),
                             '", "description": "An NFT that represents your vibez", "attributes": [{"trait_type": "moodiness", "value": 100}],"image":',
+                            //'"data:image/svg+xml;base64,',
                             imageURI,
                             '"}'
                         )
